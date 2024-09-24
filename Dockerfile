@@ -29,7 +29,7 @@ EXPOSE 8000
 
 # Run the application using Gunicorn with adjusted settings
 CMD ["gunicorn", \
-     "-w", "8", \
+     "-w", "6", \
      "-k", "uvicorn.workers.UvicornWorker", \
      "--preload", \
      "--timeout", "300", \
