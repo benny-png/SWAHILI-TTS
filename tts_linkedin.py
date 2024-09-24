@@ -8,28 +8,30 @@ import io
 from fastapi.responses import StreamingResponse
 import scipy.io.wavfile
 from langdetect import detect, LangDetectException
+from functools import lru_cache
 
 app = FastAPI()
 
 # Configure CORS
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # Allow all origins
+    allow_origins=["*"],
     allow_credentials=True,
-    allow_methods=["*"],  # Allow all methods
-    allow_headers=["*"],  # Allow all headers
+    allow_methods=["*"],
+    allow_headers=["*"],
 )
 
+# Use lru_cache to cache model loading
+@lru_cache()
+def load_model(model_name):
+    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    model = VitsModel.from_pretrained(model_name).to(device)
+    tokenizer = AutoTokenizer.from_pretrained(model_name)
+    return model, tokenizer, device
+
 # Load models and tokenizers
-device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-
 finetuned_model_name = "Benjamin-png/swahili-mms-tts-finetuned"
-finetuned_model = VitsModel.from_pretrained(finetuned_model_name).to(device)
-finetuned_tokenizer = AutoTokenizer.from_pretrained(finetuned_model_name)
-
 original_model_name = "facebook/mms-tts-swh"
-original_model = VitsModel.from_pretrained(original_model_name).to(device)
-original_tokenizer = AutoTokenizer.from_pretrained(original_model_name)
 
 class TTSRequest(BaseModel):
     text: str
@@ -40,7 +42,8 @@ def is_swahili(text: str) -> bool:
     except LangDetectException:
         return False
 
-def generate_audio(text: str, model, tokenizer):
+def generate_audio(text: str, model_name):
+    model, tokenizer, device = load_model(model_name)
     inputs = tokenizer(text, return_tensors="pt").to(device)
     with torch.no_grad():
         output = model(**inputs).waveform
@@ -52,7 +55,7 @@ async def tts_finetuned(request: TTSRequest):
     if not is_swahili(request.text):
         raise HTTPException(status_code=400, detail="The provided text is not in Swahili.")
     
-    audio, sample_rate = generate_audio(request.text, finetuned_model, finetuned_tokenizer)
+    audio, sample_rate = generate_audio(request.text, finetuned_model_name)
     
     # Convert to WAV format
     bytes_io = io.BytesIO()
@@ -66,7 +69,7 @@ async def tts_original(request: TTSRequest):
     if not is_swahili(request.text):
         raise HTTPException(status_code=400, detail="The provided text is not in Swahili.")
     
-    audio, sample_rate = generate_audio(request.text, original_model, original_tokenizer)
+    audio, sample_rate = generate_audio(request.text, original_model_name)
     
     # Convert to WAV format
     bytes_io = io.BytesIO()
