@@ -1,5 +1,6 @@
 fastapi
 uvicorn
+gunicorn
 torch
 transformers
 numpy
