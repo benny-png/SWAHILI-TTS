@@ -36,5 +36,5 @@ USER appuser
 # Expose the port that the application listens on.
 EXPOSE 8000
 
-# Run the application using Gunicorn with 4 workers
-CMD ["gunicorn", "-w", "14", "-k", "uvicorn.workers.UvicornWorker", "main:app", "--bind", "0.0.0.0:8000"]
+# Run the application using Gunicorn with 14 workers
+CMD ["gunicorn", "-w", "14", "-k", "uvicorn.workers.UvicornWorker", "tts_linkedin:app", "--bind", "0.0.0.0:8000"]
