@@ -1,4 +1,5 @@
 from fastapi import FastAPI, HTTPException
+from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from transformers import pipeline, AutoTokenizer, VitsModel
 import torch
@@ -9,6 +10,15 @@ import scipy.io.wavfile
 from langdetect import detect, LangDetectException
 
 app = FastAPI()
+
+# Configure CORS
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # Allow all origins
+    allow_credentials=True,
+    allow_methods=["*"],  # Allow all methods
+    allow_headers=["*"],  # Allow all headers
+)
 
 # Load models and tokenizers
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
