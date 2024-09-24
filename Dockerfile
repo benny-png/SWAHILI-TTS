@@ -20,10 +20,6 @@ RUN adduser \
     --uid "${UID}" \
     appuser
 
-# Set environment variables for Hugging Face and Matplotlib
-ENV TRANSFORMERS_CACHE=/home/appuser/.cache/huggingface
-ENV MPLCONFIGDIR=/home/appuser/.config/matplotlib
-
 # Download dependencies as a separate step to take advantage of Docker's caching.
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
@@ -37,12 +33,8 @@ RUN chown -R appuser:appuser /app
 # Switch to the non-privileged user to run the application.
 USER appuser
 
-# Create necessary directories with correct permissions
-RUN mkdir -p /home/appuser/.cache/huggingface \
-    && mkdir -p /home/appuser/.config/matplotlib
-
 # Expose the port that the application listens on.
 EXPOSE 8000
 
-# Run the application using Gunicorn with multiple workers
-CMD ["gunicorn", "-w", "4", "-k", "uvicorn.workers.UvicornWorker", "tts_linkedin:app", "--bind", "0.0.0.0:8000"]
+# Run the application using Gunicorn with 4 workers
+CMD ["gunicorn", "-w", "4", "-k", "uvicorn.workers.UvicornWorker", "main:app", "--bind", "0.0.0.0:8000"]
