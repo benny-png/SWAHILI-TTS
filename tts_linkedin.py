@@ -17,7 +17,7 @@ finetuned_model_name = "Benjamin-png/swahili-mms-tts-finetuned"
 finetuned_model = VitsModel.from_pretrained(finetuned_model_name).to(device)
 finetuned_tokenizer = AutoTokenizer.from_pretrained(finetuned_model_name)
 
-original_model_name = "facebook/mms-tts-swa"
+original_model_name = "facebook/mms-tts-swh"
 original_model = VitsModel.from_pretrained(original_model_name).to(device)
 original_tokenizer = AutoTokenizer.from_pretrained(original_model_name)
 
