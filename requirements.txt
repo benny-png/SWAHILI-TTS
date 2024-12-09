@@ -6,3 +6,4 @@ transformers
 numpy
 scipy
 langdetect
+python-dotenv
