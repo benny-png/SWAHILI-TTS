@@ -1,12 +1,7 @@
-# syntax=docker/dockerfile:1
-ARG PYTHON_VERSION=3.11.2
 FROM python:${PYTHON_VERSION}-slim as base
-
 ENV PYTHONDONTWRITEBYTECODE=1
 ENV PYTHONUNBUFFERED=1
-
 WORKDIR /app
-
 ARG UID=10001
 RUN adduser \
     --disabled-password \
@@ -15,19 +10,13 @@ RUN adduser \
     --shell "/bin/bash" \
     --uid "${UID}" \
     appuser
-
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
-
 COPY . .
-
+# Make sure .env has correct permissions
 RUN chown -R appuser:appuser /app
-
 USER appuser
-
 EXPOSE 8000
-
-# Run the application using Gunicorn with adjusted settings
 CMD ["gunicorn", \
      "-w", "3", \
      "-k", "uvicorn.workers.UvicornWorker", \
