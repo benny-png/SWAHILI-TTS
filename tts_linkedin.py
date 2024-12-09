@@ -31,7 +31,7 @@ def load_model(model_name):
 
 # Load models and tokenizers
 finetuned_model_name = "Benjamin-png/swahili-mms-tts-finetuned"
-original_model_name = "facebook/mms-tts-swh"
+original_model_name = "Benjamin-png/swahili-mms-tts-Briget_580_clips-finetuned"
 
 class TTSRequest(BaseModel):
     text: str
@@ -50,7 +50,7 @@ def generate_audio(text: str, model_name):
     output_np = output.squeeze().cpu().numpy()
     return output_np, model.config.sampling_rate
 
-@app.post("/tts/finetuned")
+@app.post("/tts/benny")
 async def tts_finetuned(request: TTSRequest):
     if not is_swahili(request.text):
         raise HTTPException(status_code=400, detail="The provided text is not in Swahili.")
@@ -64,7 +64,7 @@ async def tts_finetuned(request: TTSRequest):
     
     return StreamingResponse(bytes_io, media_type="audio/wav")
 
-@app.post("/tts/original")
+@app.post("/tts/briget")
 async def tts_original(request: TTSRequest):
     if not is_swahili(request.text):
         raise HTTPException(status_code=400, detail="The provided text is not in Swahili.")
