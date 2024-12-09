@@ -5,6 +5,7 @@ from transformers import pipeline, AutoTokenizer, VitsModel
 import torch
 import numpy as np
 import io
+import os
 from fastapi.responses import StreamingResponse
 import scipy.io.wavfile
 from langdetect import detect, LangDetectException
