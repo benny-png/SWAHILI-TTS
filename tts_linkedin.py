@@ -9,8 +9,14 @@ from fastapi.responses import StreamingResponse
 import scipy.io.wavfile
 from langdetect import detect, LangDetectException
 from functools import lru_cache
+from dotenv import load_dotenv
 
 app = FastAPI()
+
+
+# Load environment variables
+load_dotenv()
+HF_TOKEN = os.getenv("HF_TOKEN")
 
 # Configure CORS
 app.add_middleware(
@@ -24,9 +30,9 @@ app.add_middleware(
 # Use lru_cache to cache model loading
 @lru_cache()
 def load_model(model_name):
-    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    model = VitsModel.from_pretrained(model_name).to(device)
-    tokenizer = AutoTokenizer.from_pretrained(model_name)
+    device = "cpu"
+    model = VitsModel.from_pretrained(model_name, token=HF_TOKEN).to(device)
+    tokenizer = AutoTokenizer.from_pretrained(model_name, token=HF_TOKEN)
     return model, tokenizer, device
 
 # Load models and tokenizers
